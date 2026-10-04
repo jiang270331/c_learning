@@ -1,0 +1,28 @@
+{
+  // F5 单步调试指针变量的配置
+  //   调试器优先用 clang 自带的 lldb，找不到就退回 Dev-C++ 的 gdb
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "调试当前文件（指针观察用）",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}\\build\\${fileBasenameNoExtension}.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": true,
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gdb.exe",
+      "setupCommands": [
+        {
+          "description": "为 gdb 启用整齐打印",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "编译并运行当前文件"
+    }
+  ]
+}
