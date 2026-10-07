@@ -4,7 +4,8 @@ rem  debug-build.cmd - build a debug version for F5 debugging
 rem
 rem  Usage:  debug-build.cmd ptr1.c
 rem
-rem  Why a separate script:
+rem  Why a separate script instead of putting the command in
+rem  .vscode/tasks.json:
 rem    1. Debugging needs -g, otherwise the VARIABLES panel is empty.
 rem    2. It also needs -Wl,--disable-dynamicbase (turn off ASLR).
 rem       Without it, gdb 7.8.1 (shipped with Dev-C++) cannot set
@@ -15,17 +16,21 @@ rem    3. That option contains a comma, which PowerShell treats as an
 rem       array separator. Running it from a .cmd file avoids the
 rem       whole shell-escaping problem.
 rem
-rem  KEEP THIS FILE PURE ASCII.
-rem    cmd.exe reads .cmd files using the OEM codepage (GBK on a
-rem    Chinese Windows). Any UTF-8 non-ASCII byte here gets misread
-rem    and breaks the script, even inside a rem comment.
+rem  TWO RULES FOR EDITING THIS FILE - both were learned the hard way:
+rem
+rem  RULE 1: keep it pure ASCII.
+rem    cmd.exe reads .cmd files with the OEM codepage (GBK on a
+rem    Chinese Windows). Any UTF-8 non-ASCII byte - even inside a rem
+rem    comment - gets misread and breaks the script.
+rem
+rem  RULE 2: do NOT add "chcp 65001" here.
+rem    The Chinese console default is GBK (936), and clang compiles
+rem    UTF-8 source into GBK-encoded string literals to match it. So
+rem    the program prints GBK bytes and a GBK console shows them
+rem    correctly. Forcing 65001 makes the console decode GBK bytes
+rem    as UTF-8, which garbles Chinese output. Keep the default.
 rem ============================================================
 setlocal
-
-rem Switch the console to UTF-8 (codepage 65001). Source files are
-rem UTF-8, so Chinese program output is UTF-8 too, while a fresh
-rem Windows console defaults to GBK (936).
-chcp 65001 >nul
 
 set "SRC=%~1"
 if "%SRC%"=="" (
