@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "2.0.0",
   "tasks": [
     {
@@ -30,6 +30,20 @@
       "options": { "cwd": "${workspaceFolder}" },
       "problemMatcher": ["$gcc"],
       "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "调试编译（带调试信息）",
+      "detail": "只编译当前文件，产出 build\\<文件名>_debug.exe，供 F5 调试（不运行）",
+      "type": "shell",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "${workspaceFolder}\\debug-build.cmd",
+        "${fileBasename}"
+      ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": ["$gcc"],
+      "presentation": { "reveal": "silent", "panel": "shared", "clear": true }
     }
   ]
 }

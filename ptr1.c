@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main(void) {
-    int a = 10;
+    int a = 999;
     int *p = &a;
 
     printf("a 的值 = %d\n", a);
@@ -12,5 +12,6 @@ int main(void) {
 
     *p = 20;
     printf("修改后 a = %d\n", a);
+    printf("修改后 *p = %d\n", *p);
     return 0;
 }

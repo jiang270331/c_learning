@@ -1,13 +1,21 @@
-{
-  // F5 单步调试指针变量的配置
-  //   调试器优先用 clang 自带的 lldb，找不到就退回 Dev-C++ 的 gdb
+﻿{
+  // F5 单步调试配置（学指针最有用：能实时看到 a、p、*p 的值）
+  //
+  // 依赖三样：
+  //   1. 扩展 ms-vscode.cpptools  → 提供 cppdbg 调试器（已本地安装）
+  //   2. gdb.exe                  → Dev-C++ 自带 7.8.1
+  //   3. tasks.json 的任务「调试编译（带调试信息）」
+  //
+  // ⚠️ 关键：编译调试版必须加 -Wl,--disable-dynamicbase。
+  //    否则 gdb 7.8.1 在 Windows 上无法下断点，会报：
+  //    "Cannot insert breakpoint 1 / Cannot access memory at address 0x140001476"
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "调试当前文件（指针观察用）",
+      "name": "调试当前文件（看指针变量）",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}\\build\\${fileBasenameNoExtension}.exe",
+      "program": "${workspaceFolder}\\build\\${fileBasenameNoExtension}_debug.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -20,9 +28,14 @@
           "description": "为 gdb 启用整齐打印",
           "text": "-enable-pretty-printing",
           "ignoreFailures": true
+        },
+        {
+          "description": "关闭确认提示，避免调试卡住",
+          "text": "set confirm off",
+          "ignoreFailures": true
         }
       ],
-      "preLaunchTask": "编译并运行当前文件"
+      "preLaunchTask": "调试编译（带调试信息）"
     }
   ]
 }
