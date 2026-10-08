@@ -1,0 +1,61 @@
+{
+  // c_cpp_properties.json —— 让 C/C++ 扩展认识你的头文件和编译器
+  //
+  // 作用（解决「Ctrl+点击 stdio.h 跳不进去」）：
+  //   扩展需要知道去哪里找头文件，才能做「跳转定义」「代码补全」
+  //   「错误波浪线」。这份配置把 gcc 的搜索路径告诉它。
+  //
+  // 下面的路径是用  gcc -E -v -x c nul  实测出来的真实搜索路径，
+  // 不是猜的。如果以后换了编译器（比如 clang 恢复可用），
+  // 改 compilerPath 和 includePath 即可。
+  "version": 4,
+  "configurations": [
+    {
+      "name": "C-learning (MinGW gcc 4.9.2)",
+
+      // 用哪个编译器做智能分析
+      "compilerPath": "C:/Program Files (x86)/Dev-Cpp/MinGW64/bin/gcc.exe",
+
+      // 头文件搜索路径 —— 顺序和 gcc 自己的一致
+      "includePath": [
+        "${workspaceFolder}/**",
+
+        // gcc 内建头文件（stddef.h、stdarg.h 等）
+        "C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include",
+
+        // C++ 标准库头文件（纯 C 项目用不到，留着不碍事）
+        "C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++",
+
+        // gcc 修正过的头文件
+        "C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include-fixed",
+
+        // ⭐ 这里就是 stdio.h 所在的地方
+        "C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include"
+      ],
+
+      // 宏定义（gcc 编译时默认带的）
+      "defines": [
+        "_REENTRANT"
+      ],
+
+      // C 语言标准：gcc 4.9.2 支持到 c11
+      "cStandard": "c11",
+
+      // IntelliSense 按 gcc 64 位来解析
+      "intelliSenseMode": "windows-gcc-x64",
+
+      // 让扩展把 compilerPath 的默认包含路径也算进去
+      "compilerArgs": [],
+
+      // 浏览路径（跳转时的备选搜索位置）
+      "browse": {
+        "path": [
+          "${workspaceFolder}",
+          "C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include",
+          "C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ]
+}
