@@ -6,6 +6,7 @@
 
 int main(void) {
     int a = 10;
+    int b = 20;
     int *p = &a;
 
     printf("a 的值       printf(\"%%d\\n\", a)            -> %d\n", a);
@@ -13,8 +14,9 @@ int main(void) {
     printf("p 里的地址   printf(\"%%p\\n\", (void*)p)      -> %p\n", (void*)p);
     printf("p 指向的内容 printf(\"%%d\\n\", *p)            -> %d\n", *p);
     printf("p 自己的地址 printf(\"%%p\\n\", (void*)&p)     -> %p\n", (void*)&p);
-
-    /* 关键验证：&a 和 p 是同一次运行里的同一个地址 */
+    printf("b 的地址     printf(\"%%p\\n\", (void*)&b)     -> %p\n", (void*)&b);
+    /* 关键验证：&a 和 p 是同一次运行里的同一个地址 */ 
+    printf("&a 的地址     printf(\"%%p\\n\", (void*)&a)     -> %p\n", (void*)&a);
     printf("\n&a 与 p 相同吗？ %s\n", (&a == p) ? "相同（因为 p 抄的就是 a 的门牌）" : "不同");
     return 0;
 }
