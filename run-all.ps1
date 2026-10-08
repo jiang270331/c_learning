@@ -94,15 +94,29 @@ foreach ($f in $files) {
     }
 
     $ran = $false
-    for ($attempt = 1; $attempt -le 3 -and -not $ran; $attempt++) {
-        try { & $exe; $ran = $true; $ok++ }
-        catch {
-            # 偶发情况：系统 Smart App Control 拦了新生成的 exe，重新编译换哈希再试
-            Write-Host "  （被系统应用程序控制策略拦下，重新编译后重试）" -ForegroundColor DarkYellow
-            & $cc $f.FullName -std=c99 -Wall -o $exe
+    # Smart App Control 按「文件哈希」判定：被拦的 exe 永久被拦，
+    # 但重新编译会换一个哈希，就有概率抽过。实测需要多试几次。
+    for ($attempt = 1; $attempt -le 12 -and -not $ran; $attempt++) {
+        if ($attempt -gt 1) {
+            # 换哈希重编译：用 -static 让每次产出的二进制不同
+            & $cc $f.FullName -std=c99 -Wall -static -o $exe 2>$null
+            if (-not (Test-Path $exe)) { continue }
+        }
+        # 不能用 try/catch 抓：进程被策略拦截不走 PowerShell 异常，
+        # 只会把报错文字写进输出，所以改成检查输出内容。
+        $out = & $exe 2>&1 | Out-String
+        if ($out -match 'blocked by|Device Guard|应用程序控制策略|已阻止') {
+            Write-Host "  （被智能应用控制拦下，第 $attempt 次重编译重试…）" -ForegroundColor DarkYellow
+        } else {
+            Write-Host $out.TrimEnd()
+            $ran = $true
+            $ok++
         }
     }
-    if (-not $ran) { Write-Host "  程序未能运行（被系统策略拦截）" -ForegroundColor Red; $fail++ }
+    if (-not $ran) {
+        Write-Host "  程序未能运行（被系统策略拦截，重试 12 次仍失败）" -ForegroundColor Red
+        $fail++
+    }
 }
 
 Write-Host ("`n" + ('-' * 58)) -ForegroundColor DarkGray

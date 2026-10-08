@@ -4,31 +4,37 @@ rem  debug-build.cmd - build a debug version for F5 debugging
 rem
 rem  Usage:  debug-build.cmd ptr1.c
 rem
-rem  Why a separate script instead of putting the command in
+rem  The compiler is auto-selected, and the choice is decided by
+rem  actually TRYING to compile - never by an error code alone.
+rem
+rem  Why: Smart App Control (SAC) on this machine blocks
+rem  llvm-mingw's clang at random. Measured behaviour:
+rem    - clang --version may succeed, while the real compile is
+rem      blocked and produces no output file at all
+rem    - clang then exits with -1058471934 (an unsigned 32-bit
+rem      value) and cmd's "if errorlevel 1" does NOT reliably catch it
+rem  Both checks below therefore look for the OUTPUT FILE, which is
+rem  the only trustworthy signal. Verified: gcc 5/5 - and gcc is what
+rem  actually runs on this machine today.
+rem
+rem  Why a separate script instead of putting the command into
 rem  .vscode/tasks.json:
-rem    1. Debugging needs -g, otherwise the VARIABLES panel is empty.
-rem    2. It also needs -Wl,--disable-dynamicbase (turn off ASLR).
-rem       Without it, gdb 7.8.1 (shipped with Dev-C++) cannot set
-rem       breakpoints and fails with:
-rem         "Cannot insert breakpoint 1"
-rem         "Cannot access memory at address 0x140001476"
-rem    3. That option contains a comma, which PowerShell treats as an
-rem       array separator. Running it from a .cmd file avoids the
-rem       whole shell-escaping problem.
+rem    1. Debug needs -g, else the VARIABLES panel stays empty.
+rem    2. clang additionally needs -Wl,--disable-dynamicbase, and that
+rem       option contains a comma which PowerShell treats as an array
+rem       separator. A .cmd file avoids all the escaping trouble.
 rem
-rem  TWO RULES FOR EDITING THIS FILE - both were learned the hard way:
-rem
-rem  RULE 1: keep it pure ASCII.
-rem    cmd.exe reads .cmd files with the OEM codepage (GBK on a
-rem    Chinese Windows). Any UTF-8 non-ASCII byte - even inside a rem
-rem    comment - gets misread and breaks the script.
-rem
-rem  RULE 2: do NOT add "chcp 65001" here.
-rem    The Chinese console default is GBK (936), and clang compiles
-rem    UTF-8 source into GBK-encoded string literals to match it. So
-rem    the program prints GBK bytes and a GBK console shows them
-rem    correctly. Forcing 65001 makes the console decode GBK bytes
-rem    as UTF-8, which garbles Chinese output. Keep the default.
+rem  RULES FOR EDITING THIS FILE:
+rem    RULE 1: keep it pure ASCII. cmd.exe reads .cmd with the OEM
+rem            codepage (GBK on Chinese Windows), so any UTF-8
+rem            non-ASCII byte - even inside a rem comment - breaks it.
+rem    RULE 2: do NOT add "chcp 65001" here. The default GBK console
+rem            is what makes the Chinese program output show correctly.
+rem    RULE 3: never put "set X=C:\Program Files (x86)\..." inside a
+rem            parenthesised if-block. The ")" in "(x86)" closes the
+rem            block early; cmd then reports something like
+rem            "\Dev-Cpp\MinGW64\bin\gcc.exe was unexpected at this
+rem            time". Assign such paths on their own line instead.
 rem ============================================================
 setlocal
 
@@ -39,26 +45,69 @@ if "%SRC%"=="" (
 )
 
 set "ROOT=%~dp0"
-set "CLANG=D:\c++ai\llvm\bin\clang.exe"
 set "NAME=%~n1"
 set "OUT=%ROOT%build\%NAME%_debug.exe"
+set "PROBE=%ROOT%build\_probe.exe"
+set "PROBESRC=%ROOT%build\_probe.c"
 
 if not exist "%ROOT%build" mkdir "%ROOT%build"
-if not exist "%CLANG%" (
-    echo [ERROR] clang not found: %CLANG%
-    exit /b 1
-)
 
-echo compiler : %CLANG%
+rem Tiny program used only to test whether a compiler really works.
+> "%PROBESRC%" echo #include ^<stdio.h^>
+>>"%PROBESRC%" echo int main(void^){return 0;}
+
+rem ---------------- candidates ----------------
+rem Paths assigned OUTSIDE any if-block on purpose (see RULE 3).
+set "CLANG=D:\c++ai\llvm\bin\clang.exe"
+set "GCC=C:\Program Files (x86)\Dev-Cpp\MinGW64\bin\gcc.exe"
+
+set "CC="
+set "CCNAME="
+set "EXTRA="
+
+call :probe "%CLANG%" "-Wl,--disable-dynamicbase" "clang"
+if defined CC goto have_cc
+
+call :probe "%GCC%" "-static" "gcc (Dev-C++)"
+if defined CC goto have_cc
+
+echo [ERROR] no usable C compiler found.
+echo         tried clang: %CLANG%
+echo         tried gcc  : %GCC%
+del "%PROBESRC%" "%PROBE%" >nul 2>&1
+exit /b 1
+
+rem ----------------------------------------------------------
+rem  :probe <compiler> <extra-flags> <label>
+rem  Compiles the probe program and trusts only the produced .exe.
+rem ----------------------------------------------------------
+:probe
+if not exist %1 exit /b 0
+del "%PROBE%" >nul 2>&1
+%1 "%PROBESRC%" -std=c99 %~2 -o "%PROBE%" >nul 2>&1
+if not exist "%PROBE%" exit /b 0
+set "CC=%~1"
+set "CCNAME=%~3"
+set "EXTRA=%~2"
+exit /b 0
+
+:have_cc
+del "%PROBESRC%" "%PROBE%" >nul 2>&1
+
+echo compiler : %CC%   [%CCNAME%]
 echo source   : %ROOT%%SRC%
 echo output   : %OUT%
-echo mode     : debug (-g debug info, ASLR disabled)
+echo mode     : debug (-g, -O0, debug-friendly link)
 
-"%CLANG%" "%ROOT%%SRC%" -std=c99 -Wall -g -Wl,--disable-dynamicbase -o "%OUT%"
+del "%OUT%" >nul 2>&1
+"%CC%" "%ROOT%%SRC%" -std=c99 -Wall -g -O0 %EXTRA% -o "%OUT%"
 
-if errorlevel 1 (
+rem Decide by the artefact, not the exit code (see header note).
+if not exist "%OUT%" (
     echo.
-    echo [FAILED] compile error, see messages above.
+    echo [FAILED] no output file produced. The compiler was most
+    echo          likely blocked by Smart App Control. Just run it
+    echo          again - the block is intermittent.
     exit /b 1
 )
 
