@@ -2,8 +2,10 @@
  * 公式：a[i]  ≈  *(p + i)
  */
 #include <stdio.h>
+#include "utf8_console.h"   /* 让中文正常显示，详见该文件里的说明 */
 
 int main(void) {
+    enable_utf8_console();   /* 打印中文之前，先把控制台切成 UTF-8 */
     int a[5] = {10, 20, 30, 40, 50};
     int *p = a;   /* 指向首元素 */
     int i;
@@ -18,7 +20,7 @@ int main(void) {
     printf("指针   p  = %p\n", (void*)p);
     printf("a + 1     = %p （跳过 1 个 int，不是 1 个字节）\n", (void*)(a + 1));
 
-    printf("\nsizeof(a) = %d 字节（整个数组）\n", (int)sizeof(a));
-    printf("sizeof(p) = %d 字节（只是个指针，跟数组长度无关）\n", (int)sizeof(p));
+    printf("\nsizeof(a) = %u 字节（整个数组）\n", (unsigned)sizeof(a));
+    printf("sizeof(p) = %u 字节（只是个指针，跟数组长度无关）\n", (unsigned)sizeof(p));
     return 0;
 }

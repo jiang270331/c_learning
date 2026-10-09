@@ -2,6 +2,7 @@
  * 对比：值传递（复印件）改不了原件，传地址（门牌）才能改原件。
  */
 #include <stdio.h>
+#include "utf8_console.h"   /* 让中文正常显示，详见该文件里的说明 */
 
 /* 传值：拿到的只是复印件，改不动外面 */
 void add_one_copy(int x) {
@@ -14,6 +15,7 @@ void add_one(int *p) {
 }
 
 int main(void) {
+    enable_utf8_console();   /* 打印中文之前，先把控制台切成 UTF-8 */
     int a = 10;
 
     add_one_copy(a);
