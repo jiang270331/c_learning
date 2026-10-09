@@ -139,7 +139,7 @@ clang hello.c -o hello.exe
 | `swap.c` | Pointer · 11 | 函数传地址 swap |
 | `string_ptr.c` | Pointer · 12 | 字符串与指针，看结尾的 `'\0'` |
 | `malloc_demo.c` | Pointer · 13 | malloc → 读写 → free → 置 NULL |
-| `mistakes_demo.c` | Pointer · 14 | 新手最容易翻车（能安全演示的坑） |
+| `mistakes_demo.c` | Pointer · 14 | **第七章七类陷阱总集**（野指针/NULL解引用/返回局部地址/%d打地址/地址塞int/越界/*p++优先级）|
 | `ex_a.c` | Pointer · 15 练习 A | 打印 `a` / `&a` / `p` / `*p`，再 `*p = 100` |
 | `ex_b.c` | Pointer · 15 练习 B | 用指针写 swap（附错误示范对照） |
 | `ex_c.c` | Pointer · 15 练习 C | 猜结果，附 4 道加练对照题 |
