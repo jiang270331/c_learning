@@ -157,6 +157,10 @@ print("\n" + "=" * 72)
 bad = [r for r in results if not r[0]]
 good = [r for r in results if r[0]]
 print("一致: {} / {}".format(len(good), len(results)))
+if len(results) < 37:
+    print("注意: 应有 37 项，实际只检查了 {} 项。".format(len(results)))
+    print("      差额是因为部分 exe 无法运行（多为 Windows 智能应用控制拦截）。")
+    print("      重跑几次通常能补上；被跳过的项不算失败。")
 if bad:
     print("\n不一致的项:")
     for _, desc, got, want in bad:
