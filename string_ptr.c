@@ -2,8 +2,11 @@
  * 字符串 = 字符数组 + 结尾 '\0'
  */
 #include <stdio.h>
+#include "utf8_console.h"   /* 让中文正常显示，详见该文件里的说明 */
 
 int main(void) {
+    enable_utf8_console();   /* 打印中文之前，先把控制台切成 UTF-8 */
+
     char s[] = "cat";   /* 初学用 char s[]，可读可改 */
     char *p;
 
@@ -20,6 +23,6 @@ int main(void) {
      * char *lit = "hello";
      * lit[0] = 'H';   <-- 运行时会崩溃
      */
-    printf("\nsizeof(s) = %d 字节 （c,a,t 加结尾的 '\\0'）\n", (int)sizeof(s));
+    printf("\nsizeof(s) = %u 字节 （c,a,t 加结尾的 '\\0'）\n", (unsigned)sizeof(s));
     return 0;
 }

@@ -2,6 +2,7 @@
  * 这是练习答案，也顺手演示「为什么传值做不到」。
  */
 #include <stdio.h>
+#include "utf8_console.h"   /* 让中文正常显示，详见该文件里的说明 */
 
 /* 错误示范：传值，换不动外面 */
 void swap_wrong(int x, int y) {
@@ -19,6 +20,8 @@ void swap(int *x, int *y) {
 }
 
 int main(void) {
+    enable_utf8_console();   /* 打印中文之前，先把控制台切成 UTF-8 */
+
     int a = 3, b = 5;
 
     swap_wrong(a, b);
