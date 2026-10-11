@@ -119,6 +119,7 @@ clang hello.c -o hello.exe
 | `sizes.c` | 各类型字节数实测（含"指针为何 8 字节"） |
 | `ex_7_3.c` | 7.3 那 4 道练习题的验证 |
 | `func_array.c` | 数组作参数退化 + `wrong_length` 算错长度（陷阱） |
+| `func_correct.c` | **数组作参数的正确做法**（三组对照：传 n / 指向数组的指针 / 哨兵值）|
 | `func_output.c` | 指针作输出参数、一函数多返回值、二级指针 |
 | `func_return.c` | 野指针陷阱 + 三种正确做法（`static`/调用者提供/字面量） |
 | `string_basic.c` | 字符串本质、指针遍历、自实现 `strlen`、`%s` vs `%c` |
