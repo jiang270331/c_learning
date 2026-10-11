@@ -126,6 +126,7 @@ clang hello.c -o hello.exe
 | `string_literal.c` | 只读字面量：`char a[]` 可改 vs `char *p` 改了崩溃 |
 | `review_ch7.c` | **全章综合自测**（5 组 25 题，答案解析用实测数据） |
 | `practice_7.c` | **填空式练习台**（7 道题，写完自动判分；参考答案 15/15 通过） |
+| `ex_sizeof.c` | **sizeof 预测自测**（10 题，填 #define 后自动批改；针对他答错过的点） |
 
 **早期练习（对照「卡卡老师笔记」章节）**
 
